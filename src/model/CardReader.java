@@ -2,26 +2,21 @@ package model;
 
 import java.util.Scanner;
 
-public class CardReader {
-    private int amount;
+public class CardReader extends MoneyAcceptor {
     private Scanner scanner;
 
     public CardReader() {
-        this.amount = 0;
+        super();
         this.scanner = new Scanner(System.in);
     }
 
-    public int getAmount() {
-        return amount;
-    }
-
-    public void addMoney() {
+    public int addMoney() {
         System.out.println("Введите номер карты:");
         String cardNumber = scanner.nextLine().trim();
 
         if (cardNumber.isEmpty()) {
             System.out.println("Номер карты не введен");
-            return;
+            return 0;
         }
 
         System.out.println("Введите одноразовый пароль:");
@@ -29,7 +24,7 @@ public class CardReader {
 
         if (password.isEmpty()) {
             System.out.println("Пароль не введен");
-            return;
+            return 0;
         }
 
         System.out.println("Введите сумму пополнения:");
@@ -37,7 +32,7 @@ public class CardReader {
 
         if (input.isEmpty()) {
             System.out.println("Вы ничего не ввели");
-            return;
+            return 0;
         }
 
         try {
@@ -45,18 +40,16 @@ public class CardReader {
 
             if (sum <= 0) {
                 System.out.println("Сумма должна быть больше нуля");
-                return;
+                return 0;
             }
 
-            amount = amount + sum;
+            addAmount(sum);
             System.out.println("Оплата картой прошла успешно");
+            return sum;
 
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             System.out.println("Нужно ввести целое число");
+            return 0;
         }
-    }
-
-    public void reduceAmount(int price) {
-        amount = amount - price;
     }
 }

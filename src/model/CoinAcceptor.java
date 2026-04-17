@@ -2,27 +2,22 @@ package model;
 
 import java.util.Scanner;
 
-public class CoinAcceptor {
-    private int amount;
+public class CoinAcceptor extends MoneyAcceptor {
     private Scanner scanner;
 
     public CoinAcceptor(int amount) {
-        this.amount = amount;
+        super(amount);
         this.scanner = new Scanner(System.in);
     }
 
-    public int getAmount() {
-        return amount;
-    }
-
-    public void addMoney() {
+    public int addMoney() {
         System.out.println("Введите сумму монет:");
 
         String input = scanner.nextLine().trim();
 
         if (input.isEmpty()) {
             System.out.println("Вы ничего не ввели");
-            return;
+            return 0;
         }
 
         try {
@@ -30,24 +25,16 @@ public class CoinAcceptor {
 
             if (sum <= 0) {
                 System.out.println("Сумма должна быть больше нуля");
-                return;
+                return 0;
             }
 
             addAmount(sum);
             System.out.println("Баланс пополнен на " + sum);
+            return sum;
 
         } catch (NumberFormatException e) {
             System.out.println("Нужно ввести целое число");
+            return 0;
         }
-    }
-
-    public void addAmount(int sum) {
-        if (sum > 0) {
-            amount = amount + sum;
-        }
-    }
-
-    public void reduceAmount(int price) {
-        amount = amount - price;
     }
 }
