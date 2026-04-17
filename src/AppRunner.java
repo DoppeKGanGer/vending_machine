@@ -15,63 +15,42 @@ import java.util.Scanner;
 
 public class AppRunner {
 
-    private final UniversalArray<Product> products = new UniversalArrayImpl<>();
-    private final CoinAcceptor coinAcceptor;
-    private final CardReader cardReader;
-    private final Scanner scanner;
+    private boolean isExit;
+    private CoinAcceptor coinAcceptor;
+    private CardReader cardReader;
+    private Scanner scanner;
 
-    private static boolean isExit = false;
-
-    private AppRunner() {
-        products.addAll(new Product[]{
-                new Water(ActionLetter.B, 20),
-                new CocaCola(ActionLetter.C, 50),
-                new Soda(ActionLetter.D, 30),
-                new Snickers(ActionLetter.E, 80),
-                new Mars(ActionLetter.F, 80),
-                new Pistachios(ActionLetter.G, 130)
-        });
-
-        coinAcceptor = new CoinAcceptor(100);
-        cardReader = new CardReader();
-        scanner = new Scanner(System.in);
+    public AppRunner() {
+        this.isExit = false;
+        this.coinAcceptor = new CoinAcceptor(0);
+        this.cardReader = new CardReader();
+        this.scanner = new Scanner(System.in);
     }
 
     public static void run() {
-        AppRunner app = new AppRunner();
+        new AppRunner().start();
+    }
+
+    private void start() {
+        UniversalArray<Product> products = new UniversalArrayImpl<>();
+
+        products.add(new Water(ActionLetter.B, 20));
+        products.add(new CocaCola(ActionLetter.C, 50));
+        products.add(new Soda(ActionLetter.D, 30));
+        products.add(new Snickers(ActionLetter.E, 80));
+        products.add(new Mars(ActionLetter.F, 80));
+        products.add(new Pistachios(ActionLetter.G, 130));
+
         while (!isExit) {
-            app.startSimulation();
+            showProducts(products);
+            chooseAction(products);
         }
     }
 
-    private void startSimulation() {
-        print("В автомате доступны:");
-        showProducts(products);
-
-        print("Монет на сумму: " + coinAcceptor.getAmount());
-
-        UniversalArray<Product> allowedProducts = new UniversalArrayImpl<>();
-        allowedProducts.addAll(getAllowedProducts().toArray());
-
-        chooseAction(allowedProducts);
-    }
-
-    private UniversalArray<Product> getAllowedProducts() {
-        UniversalArray<Product> allowedProducts = new UniversalArrayImpl<>();
-
-        for (int i = 0; i < products.size(); i++) {
-            if (coinAcceptor.getAmount() >= products.get(i).getPrice()) {
-                allowedProducts.add(products.get(i));
-            }
-        }
-
-        return allowedProducts;
-    }
-
-    private void chooseAction(UniversalArray<Product> allowedProducts) {
-        print(" a - Пополнить баланс");
+    private void chooseAction(UniversalArray<Product> products) {
+        print(" a - Пополнить баланс монетами");
         print(" p - Оплата картой");
-        showActions(allowedProducts);
+        showActions(products);
         print(" h - Выйти");
 
         String input = fromConsole().trim();
@@ -100,12 +79,16 @@ public class AppRunner {
         }
 
         try {
-            ActionLetter letter = ActionLetter.valueOf(action.toUpperCase());
+            ActionLetter selectedLetter = ActionLetter.valueOf(action.toUpperCase());
 
-            for (int i = 0; i < allowedProducts.size(); i++) {
-                if (allowedProducts.get(i).getActionLetter().equals(letter)) {
-                    coinAcceptor.reduceAmount(allowedProducts.get(i).getPrice());
-                    print("Вы купили " + allowedProducts.get(i).getName());
+            for (int i = 0; i < products.size(); i++) {
+                if (products.get(i).getActionLetter().equals(selectedLetter)) {
+                    if (coinAcceptor.getAmount() >= products.get(i).getPrice()) {
+                        coinAcceptor.reduceAmount(products.get(i).getPrice());
+                        print("Вы купили " + products.get(i).getName());
+                    } else {
+                        print("Недостаточно денег");
+                    }
                     return;
                 }
             }
@@ -119,9 +102,11 @@ public class AppRunner {
 
     private void showActions(UniversalArray<Product> products) {
         for (int i = 0; i < products.size(); i++) {
-            print(String.format(" %s - %s",
-                    products.get(i).getActionLetter().getValue(),
-                    products.get(i).getName()));
+            if (coinAcceptor.getAmount() >= products.get(i).getPrice()) {
+                print(String.format(" %s - %s",
+                        products.get(i).getActionLetter().getValue(),
+                        products.get(i).getName()));
+            }
         }
     }
 
@@ -133,9 +118,12 @@ public class AppRunner {
         for (int i = 0; i < products.size(); i++) {
             print(products.get(i).toString());
         }
+
+        print("");
+        print("Монет на сумму: " + coinAcceptor.getAmount());
     }
 
-    private void print(String msg) {
-        System.out.println(msg);
+    private void print(String text) {
+        System.out.println(text);
     }
 }

@@ -45,7 +45,7 @@ public class CardReader {
             System.out.println("Оплата картой прошла успешно");
             return sum;
 
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             System.out.println("Нужно ввести целое число");
             return 0;
         }

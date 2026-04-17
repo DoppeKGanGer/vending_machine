@@ -18,8 +18,7 @@ public class CoinAcceptor {
     public void addMoney() {
         System.out.println("Введите сумму монет:");
 
-        String input = scanner.nextLine();
-        input = input.trim();
+        String input = scanner.nextLine().trim();
 
         if (input.isEmpty()) {
             System.out.println("Вы ничего не ввели");
@@ -34,10 +33,10 @@ public class CoinAcceptor {
                 return;
             }
 
-            amount = amount + sum;
+            addAmount(sum);
             System.out.println("Баланс пополнен на " + sum);
 
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             System.out.println("Нужно ввести целое число");
         }
     }
